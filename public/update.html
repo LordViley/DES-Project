@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sporting Goods Store - Update Record</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="card-container">
+        <form id="updateForm">
+            <h2 id="updateTitle">Update</h2>
+            <p class="hint">Enter an existing ID to update that record, or a new ID to add one.</p>
+
+            <!-- Inputs are built by loadUpdateForm() in app.js -->
+            <div id="dynamicFields"></div>
+
+            <button type="submit">Save record</button>
+            <a class="back-link" href="dashboard.html">Back to dashboard</a>
+        </form>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
