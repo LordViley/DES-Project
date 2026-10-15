@@ -2,7 +2,7 @@
 
 Built from the sporting goods ER diagram (Discount, Customer, Product, Inventory, Order, Payment, Return), following the Lab 4 and Lab 5 & 6 formats.
 
-## Work split (5 segments)
+## 5 SEGMENTS
 
 | # | Segment | Owner | Files | Lab ref | Deliverable |
 |---|---|---|---|---|---|
