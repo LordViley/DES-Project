@@ -36,6 +36,12 @@ INSERT INTO Discounts (Discount_ID, Customer_No, Discount_Percentage, Discount_A
 (201, 1, 10.00, 350.00),
 (202, 3, 5.00,  625.00);
 
+-- Insert Data: Discount_Tiers (loyalty ladder; editable from the dashboard)
+INSERT INTO Discount_Tiers (Min_Orders, Percentage) VALUES
+(3, 5.00),
+(6, 10.00),
+(10, 15.00);
+
 -- Insert Data: Orders
 INSERT INTO Orders (Order_No, Product_ID, Customer_No, Order_date, Total_Amount, Package_status) VALUES
 (5001, 1, 1, '2026-03-02', 3150.00,  'Delivered'),
@@ -58,8 +64,8 @@ INSERT INTO Returns (Return_No, Order_No, Product_ID, Return_Date, Reason, Statu
 (7002, 5001, 1, '2026-03-14', 'Defective valve',       'Pending');
 
 -- Insert Data: Users (demo login for the web app; plain text is for lab use only)
-INSERT INTO Users (Username, Password) VALUES
-('admin', 'admin123');
+INSERT INTO Users (Username, Password, Role) VALUES
+('admin', 'admin123', 'admin');
 
 -- ---------------------------------------------------------------------
 -- Verification & Query Scripts

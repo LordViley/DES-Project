@@ -22,6 +22,38 @@
             </div>
             <button type="submit">Login</button>
             <button type="button" class="link-btn" onclick="toggleForgotPass(true)">Forgot Password?</button>
+            <button type="button" class="link-btn" onclick="showForm('signupForm')">Create an account</button>
+        </form>
+
+        <!-- Sign Up Form (hidden by default) -->
+        <form id="signupForm" style="display: none;">
+            <h2>Create Account</h2>
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" required maxlength="100" placeholder="Your full name">
+            </div>
+            <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" required maxlength="100" placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label for="signupPhone">Phone</label>
+                <input type="tel" id="signupPhone" required maxlength="20" placeholder="+254700000000">
+            </div>
+            <div class="form-group">
+                <label for="newUsername">Username</label>
+                <input type="text" id="newUsername" required minlength="3" maxlength="50" placeholder="Choose a username">
+            </div>
+            <div class="form-group">
+                <label for="newPassword">Password</label>
+                <input type="password" id="newPassword" required minlength="8" placeholder="At least 8 characters">
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" required minlength="8" placeholder="Repeat the password">
+            </div>
+            <button type="submit">Sign Up</button>
+            <button type="button" class="link-btn" onclick="showForm('loginForm')">Already have an account? Log in</button>
         </form>
 
         <!-- Forgot Password Form (hidden by default) -->

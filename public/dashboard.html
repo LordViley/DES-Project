@@ -11,13 +11,16 @@
     <div class="card-container dashboard-container">
         <h2>Sporting Goods Store Dashboard</h2>
 
+        <!-- Totals and the low-stock alert are filled in by loadSummary() in app.js -->
+        <div id="summary"></div>
+
         <!-- Table cards are built by loadDashboard() in app.js -->
         <div id="tableList"></div>
 
         <!-- Records appear here when View is clicked -->
         <div id="results"></div>
 
-        <a class="back-link" href="index.html">Log out</a>
+        <a class="back-link" href="index.html" id="logoutLink">Log out</a>
     </div>
 
     <script src="app.js"></script>
