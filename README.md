@@ -44,7 +44,7 @@ You can still run the four SQL files by hand in MySQL Workbench, in order 01 -> 
 | `set DB_PASSWORD=...` every session | Read from `.env` |
 | Connection dying after MySQL idles | Connection pool reconnects by itself |
 
-## Notes
+## Notes:
 
 - Table names are plural because `Order` and `Return` are reserved words in MySQL.
 - `Users` is not in the ER diagram; it only supports the login screen.
