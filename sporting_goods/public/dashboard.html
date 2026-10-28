@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sporting Goods Store - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-page">
+
+    <aside class="sidebar">
+        <div class="brand">Sporting<span>Goods</span></div>
+
+        <nav class="side-nav">
+            <a class="side-link active" href="dashboard.html">Dashboard</a>
+
+            <p class="side-heading">Tables</p>
+            <!-- Table links are built by loadDashboard() in app.js -->
+            <div id="sideNav"></div>
+        </nav>
+
+        <a class="side-link logout" href="index.html">Log out</a>
+    </aside>
+
+    <main class="main-content">
+        <h2>Store Dashboard</h2>
+
+<!-- Count boxes are built by loadSummary() in app.js -->
+<div id="summary"></div>
+
+<!-- Table rows are built by loadDashboard() in app.js -->
+<div id="tableList"></div>
+
+        <!-- Table rows are built by loadDashboard() in app.js -->
+        <div id="tableList"></div>
+
+        <!-- Records appear here when View is clicked -->
+        <div id="results"></div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
