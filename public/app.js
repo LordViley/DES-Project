@@ -1,4 +1,4 @@
-// ---------- Login / Forgot password ----------
+// ---------- Login / Sign up / Forgot password ----------
 
 // Show one of the three forms on the login page
 function showForm(formId) {
@@ -12,7 +12,7 @@ function toggleForgotPass(showForgot) {
     showForm(showForgot ? 'forgotForm' : 'loginForm');
 }
 
-// Sign up: create the account, then go straight to the dashboard
+// Sign up: create the account, then go straight to the shop
 const signupForm = document.getElementById('signupForm');
 if (signupForm) {
     signupForm.addEventListener('submit', async function (e) {
@@ -132,20 +132,22 @@ async function loadSummary() {
             ['Pending returns', data.pendingReturns]
         ];
 
-        const grid = document.createElement('div');
-        grid.className = 'summary-grid';
         stats.forEach(([label, value]) => {
             const stat = document.createElement('div');
             stat.className = 'stat';
-            const strong = document.createElement('strong');
-            strong.textContent = value;
-            const span = document.createElement('span');
-            span.textContent = label;
-            stat.appendChild(strong);
-            stat.appendChild(span);
-            grid.appendChild(stat);
+
+            const number = document.createElement('span');
+            number.className = 'stat-number';
+            number.textContent = value;
+
+            const text = document.createElement('span');
+            text.className = 'stat-label';
+            text.textContent = label;
+
+            stat.appendChild(number);
+            stat.appendChild(text);
+            box.appendChild(stat);
         });
-        box.appendChild(grid);
 
         if (data.lowStock.length > 0) {
             const alertBox = document.createElement('div');
@@ -165,13 +167,14 @@ async function loadSummary() {
     }
 }
 
-// Build one card per table, each with View, Update and Delete actions
+// Build one card per table (View, Update, Delete) and a sidebar link per table
 async function loadDashboard() {
     const list = document.getElementById('tableList');
     if (!list) return;
 
     try {
         const schema = await fetchSchema();
+        const sideNav = document.getElementById('sideNav');
 
         Object.keys(schema).forEach((tableName) => {
             const card = document.createElement('div');
@@ -189,6 +192,10 @@ async function loadDashboard() {
             card.appendChild(title);
             card.appendChild(actions);
             list.appendChild(card);
+
+            if (sideNav) {
+                sideNav.appendChild(makeButton(tableName, () => viewTable(tableName), 'side-link'));
+            }
         });
     } catch (error) {
         console.error('Error loading dashboard:', error);
@@ -196,7 +203,28 @@ async function loadDashboard() {
     }
 }
 
-// Show all records of a table in the results area
+// Sidebar links on the Update page (the dashboard builds its own in loadDashboard)
+async function loadSideNav() {
+    const nav = document.getElementById('sideNav');
+    if (!nav || document.getElementById('tableList')) return;
+
+    const current = new URLSearchParams(window.location.search).get('table');
+
+    try {
+        const schema = await fetchSchema();
+        Object.keys(schema).forEach((tableName) => {
+            const link = document.createElement('a');
+            link.className = 'side-link' + (tableName === current ? ' active' : '');
+            link.href = `update.html?table=${encodeURIComponent(tableName)}`;
+            link.textContent = tableName;
+            nav.appendChild(link);
+        });
+    } catch (error) {
+        console.error('Error loading sidebar:', error);
+    }
+}
+
+// Show all records of a table in the results area (with search, badges, close)
 async function viewTable(tableName) {
     const results = document.getElementById('results');
 
@@ -208,14 +236,42 @@ async function viewTable(tableName) {
             return;
         }
         const rows = await response.json();
+        const totalLabel = `${rows.length} record${rows.length === 1 ? '' : 's'}`;
 
         results.innerHTML = '';
 
-        const heading = document.createElement('h3');
-        heading.textContent = `${tableName} (${rows.length} record${rows.length === 1 ? '' : 's'})`;
-        results.appendChild(heading);
+        // Header bar: title, count badge, search box, close button
+        const bar = document.createElement('div');
+        bar.className = 'results-bar';
 
-        if (rows.length === 0) return;
+        const heading = document.createElement('h3');
+        heading.textContent = tableName;
+
+        const count = document.createElement('span');
+        count.className = 'count-badge';
+        count.textContent = totalLabel;
+
+        const search = document.createElement('input');
+        search.type = 'search';
+        search.className = 'results-search';
+        search.placeholder = `Search ${tableName.toLowerCase()}...`;
+
+        const close = makeButton('Close', () => { results.innerHTML = ''; }, 'results-close');
+
+        bar.appendChild(heading);
+        bar.appendChild(count);
+        bar.appendChild(search);
+        bar.appendChild(close);
+        results.appendChild(bar);
+        results.scrollIntoView({ behavior: 'smooth' });
+
+        if (rows.length === 0) {
+            const empty = document.createElement('p');
+            empty.className = 'no-match';
+            empty.textContent = 'No records in this table yet.';
+            results.appendChild(empty);
+            return;
+        }
 
         const wrapper = document.createElement('div');
         wrapper.className = 'table-wrapper';
@@ -233,13 +289,42 @@ async function viewTable(tableName) {
         const body = table.createTBody();
         rows.forEach((row) => {
             const tr = body.insertRow();
-            Object.values(row).forEach((value) => {
-                tr.insertCell().textContent = value;
+            Object.entries(row).forEach(([column, value]) => {
+                const cell = tr.insertCell();
+                if (column === 'Package_status' || column === 'Status') {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge badge-' + String(value).toLowerCase();
+                    badge.textContent = value;
+                    cell.appendChild(badge);
+                } else {
+                    cell.textContent = value;
+                }
             });
         });
 
         wrapper.appendChild(table);
         results.appendChild(wrapper);
+
+        const noMatch = document.createElement('p');
+        noMatch.className = 'no-match';
+        noMatch.style.display = 'none';
+        noMatch.textContent = 'No records match your search.';
+        results.appendChild(noMatch);
+
+        // Filter rows as the user types
+        search.addEventListener('input', () => {
+            const query = search.value.trim().toLowerCase();
+            let shown = 0;
+
+            Array.from(body.rows).forEach((tr) => {
+                const match = tr.textContent.toLowerCase().includes(query);
+                tr.style.display = match ? '' : 'none';
+                if (match) shown++;
+            });
+
+            count.textContent = query ? `${shown} of ${rows.length}` : totalLabel;
+            noMatch.style.display = shown === 0 ? 'block' : 'none';
+        });
     } catch (error) {
         console.error('Error loading records:', error);
         alert('Server error. Ensure Node server is running.');
@@ -268,8 +353,13 @@ async function deleteTableRecord(tableName) {
         );
         const result = await response.json();
         alert(result.message);
-        document.getElementById('summary').innerHTML = '';
-        loadSummary();
+
+        // Refresh the totals so they reflect the deletion
+        const summary = document.getElementById('summary');
+        if (summary) {
+            summary.innerHTML = '';
+            loadSummary();
+        }
     } catch (error) {
         console.error('Error deleting record:', error);
         alert('Server error. Ensure Node server is running.');
@@ -277,6 +367,57 @@ async function deleteTableRecord(tableName) {
 }
 
 // ---------- Update form ----------
+
+function addOption(select, value, text) {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = text;
+    select.appendChild(opt);
+}
+
+// Build one input from the field's validation rule.
+// The primary key and optional fields are not required (blank = auto-filled / new record).
+async function buildInput(field, rule, schema, isPk, isOptional) {
+    let input;
+    const blankLabel = isOptional ? 'Auto (leave blank)' : `Select ${field}`;
+
+    if (rule.type === 'select') {
+        input = document.createElement('select');
+        addOption(input, '', blankLabel);
+        rule.options.forEach((o) => addOption(input, o, o));
+    } else if (rule.type === 'ref') {
+        input = document.createElement('select');
+        addOption(input, '', blankLabel);
+        const rows = await (await fetch(`/api/${encodeURIComponent(rule.table)}`)).json();
+        const parent = schema[rule.table];
+        rows.forEach((r) => addOption(input, r[parent.pk], `${r[parent.pk]} - ${r[parent.columns[1]]}`));
+    } else {
+        input = document.createElement('input');
+        input.type = rule.type || (field.toLowerCase().includes('date') ? 'date' : 'text');
+        if (rule.min !== undefined) input.min = rule.min;
+        if (rule.max !== undefined) input.max = rule.max;
+        if (rule.step !== undefined) input.step = rule.step;
+        if (rule.pattern) input.pattern = rule.pattern;
+        if (field.endsWith('_ID') || field.endsWith('_No')) {
+            input.type = 'number';
+            input.min = 1;
+            input.step = 1;
+        }
+        input.title = rule.hint || '';
+
+        if (isPk) {
+            input.placeholder = 'Leave blank for a new record';
+        } else if (isOptional) {
+            input.placeholder = 'Filled in automatically';
+        } else {
+            input.placeholder = rule.hint || `Enter ${field}`;
+        }
+    }
+
+    input.name = field;
+    input.required = !isPk && !isOptional;
+    return input;
+}
 
 // Generate form inputs from the selected table's schema
 async function loadUpdateForm() {
@@ -301,38 +442,34 @@ async function loadUpdateForm() {
         return;
     }
 
-    const { pk, columns, optional } = schema[tableName];
+    const { pk, columns, optional = [], fields = {} } = schema[tableName];
     updateTitle.innerText = `Add / Update ${tableName}`;
 
-    columns.forEach((field) => {
+    for (const field of columns) {
+        const rule = fields[field] || {};
+        const isPk = field === pk;
+        const isOptional = optional.includes(field);
+
         const div = document.createElement('div');
         div.className = 'form-group';
 
         const label = document.createElement('label');
         label.innerText = field;
 
-        const input = document.createElement('input');
-        input.type = field.toLowerCase().includes('date') ? 'date' : 'text';
-        input.name = field;
+        div.appendChild(label);
+        div.appendChild(await buildInput(field, rule, schema, isPk, isOptional));
 
-        const note = document.createElement('div');
-        note.className = 'field-note';
-
-        if (field === pk) {
-            input.placeholder = 'Leave blank for a new record';
-            note.textContent = 'Auto-numbered when blank.';
-        } else if (optional.includes(field)) {
-            input.placeholder = 'Filled in automatically';
-            note.textContent = 'Optional: the system fills this in if left blank.';
-        } else {
-            input.placeholder = `Enter ${field}`;
+        if (isPk || isOptional) {
+            const note = document.createElement('div');
+            note.className = 'field-note';
+            note.textContent = isPk
+                ? 'Auto-numbered when blank.'
+                : 'Optional: the system fills this in if left blank.';
+            div.appendChild(note);
         }
 
-        div.appendChild(label);
-        div.appendChild(input);
-        if (note.textContent) div.appendChild(note);
         dynamicFields.appendChild(div);
-    });
+    }
 
     const pkInput = form.elements[pk];
 
@@ -363,6 +500,7 @@ async function loadUpdateForm() {
             data[key] = value;
         });
 
+        // Blank ID = create (POST); existing ID = update (PUT)
         const id = (data[pk] || '').trim();
         const url = id === ''
             ? `/api/${encodeURIComponent(tableName)}`
@@ -384,7 +522,9 @@ async function loadUpdateForm() {
     });
 }
 
-// Dashboard and update pages: send visitors who are not logged in back to the login screen
+// ---------- Page setup ----------
+
+// Dashboard and update pages: send visitors who are not logged in (or not admins) elsewhere
 async function requireLogin() {
     const response = await fetch('/api/me');
     if (!response.ok) {
@@ -415,5 +555,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     loadSummary();
     loadDashboard();
+    loadSideNav();
     loadUpdateForm();
 });

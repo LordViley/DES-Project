@@ -4,69 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sporting Goods Store - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="login-page">
 
-    <div class="card-container">
-        <!-- Login Form -->
-        <form id="loginForm">
-            <h2>System Login</h2>
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" required placeholder="Enter username">
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" required placeholder="Enter password">
-            </div>
-            <button type="submit">Login</button>
-            <button type="button" class="link-btn" onclick="toggleForgotPass(true)">Forgot Password?</button>
-            <button type="button" class="link-btn" onclick="showForm('signupForm')">Create an account</button>
-        </form>
+    <section class="login-brand">
+        <div class="brand">Sporting<span>Goods</span></div>
 
-        <!-- Sign Up Form (hidden by default) -->
-        <form id="signupForm" style="display: none;">
-            <h2>Create Account</h2>
-            <div class="form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" required maxlength="100" placeholder="Your full name">
-            </div>
-            <div class="form-group">
-                <label for="signupEmail">Email</label>
-                <input type="email" id="signupEmail" required maxlength="100" placeholder="you@example.com">
-            </div>
-            <div class="form-group">
-                <label for="signupPhone">Phone</label>
-                <input type="tel" id="signupPhone" required maxlength="20" placeholder="+254700000000">
-            </div>
-            <div class="form-group">
-                <label for="newUsername">Username</label>
-                <input type="text" id="newUsername" required minlength="3" maxlength="50" placeholder="Choose a username">
-            </div>
-            <div class="form-group">
-                <label for="newPassword">Password</label>
-                <input type="password" id="newPassword" required minlength="8" placeholder="At least 8 characters">
-            </div>
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" required minlength="8" placeholder="Repeat the password">
-            </div>
-            <button type="submit">Sign Up</button>
-            <button type="button" class="link-btn" onclick="showForm('loginForm')">Already have an account? Log in</button>
-        </form>
+        <div class="brand-copy">
+            <h1>Run the<br>store.<br><span>Win the day.</span></h1>
+            <p>Manage customers, products, orders, payments and returns from one place.</p>
+        </div>
 
-        <!-- Forgot Password Form (hidden by default) -->
-        <form id="forgotForm" style="display: none;">
-            <h2>Reset Password</h2>
-            <div class="form-group">
-                <label for="resetEmail">Email Address</label>
-                <input type="email" id="resetEmail" required placeholder="Enter your registered email">
-            </div>
-            <button type="submit">Send Reset Link</button>
-            <button type="button" class="link-btn" onclick="toggleForgotPass(false)">Back to Login</button>
-        </form>
-    </div>
+        <p class="brand-foot">Store Management System</p>
+    </section>
+
+    <section class="login-panel">
+        <div class="login-card">
+            <!-- Login Form -->
+            <form id="loginForm">
+                <h2>System Login</h2>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Enter password">
+                </div>
+                <button type="submit">Login</button>
+                <button type="button" class="link-btn" onclick="toggleForgotPass(true)">Forgot Password?</button>
+                <button type="button" class="link-btn" onclick="showForm('signupForm')">Create an account</button>
+            </form>
+
+            <!-- Sign Up Form (hidden by default) -->
+            <form id="signupForm" style="display: none;">
+                <h2>Create Account</h2>
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" required maxlength="100" placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" required maxlength="100" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="signupPhone">Phone</label>
+                    <input type="tel" id="signupPhone" required maxlength="20" placeholder="+254700000000">
+                </div>
+                <div class="form-group">
+                    <label for="newUsername">Username</label>
+                    <input type="text" id="newUsername" required minlength="3" maxlength="50" placeholder="Choose a username">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Password</label>
+                    <input type="password" id="newPassword" required minlength="8" placeholder="At least 8 characters">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" required minlength="8" placeholder="Repeat the password">
+                </div>
+                <button type="submit">Sign Up</button>
+                <button type="button" class="link-btn" onclick="showForm('loginForm')">Already have an account? Log in</button>
+            </form>
+
+            <!-- Forgot Password Form (hidden by default) -->
+            <form id="forgotForm" style="display: none;">
+                <h2>Reset Password</h2>
+                <div class="form-group">
+                    <label for="resetEmail">Email Address</label>
+                    <input type="email" id="resetEmail" required placeholder="Enter your registered email">
+                </div>
+                <button type="submit">Send Reset Link</button>
+                <button type="button" class="link-btn" onclick="toggleForgotPass(false)">Back to Login</button>
+            </form>
+        </div>
+    </section>
 
     <script src="app.js"></script>
 </body>

@@ -4,14 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sporting Goods Store - Update Record</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="update-page">
 
-    <div class="card-container">
-        <form id="updateForm">
-            <h2 id="updateTitle">Update</h2>
-            <p class="hint">Leave the ID blank to add a new record (it is numbered automatically). Enter an existing ID to edit that record; its details load for you, and blank fields stay unchanged.</p>
+    <aside class="sidebar">
+        <div class="brand">Sporting<span>Goods</span></div>
+
+        <nav class="side-nav">
+            <a class="side-link" href="dashboard.html">Dashboard</a>
+
+            <p class="side-heading">Update table</p>
+            <!-- Table links are built by loadSideNav() in app.js -->
+            <div id="sideNav"></div>
+        </nav>
+
+        <!-- The click handler in app.js ends the session before returning to the login page -->
+        <a class="side-link logout" href="index.html" id="logoutLink">Log out</a>
+    </aside>
+
+    <main class="main-content">
+        <h2 id="updateTitle">Update</h2>
+
+        <form id="updateForm" class="form-card">
+            <p class="hint">Leave the ID blank to add a new record (it is numbered automatically). Enter an existing ID to edit that record; its details load for you.</p>
 
             <!-- Inputs are built by loadUpdateForm() in app.js -->
             <div id="dynamicFields"></div>
@@ -19,7 +37,7 @@
             <button type="submit">Save record</button>
             <a class="back-link" href="dashboard.html">Back to dashboard</a>
         </form>
-    </div>
+    </main>
 
     <script src="app.js"></script>
 </body>

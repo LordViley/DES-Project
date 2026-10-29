@@ -49,6 +49,75 @@ const TABLES = {
     Returns:   { pk: 'Return_No',    columns: ['Return_No', 'Order_No', 'Product_ID', 'Return_Date', 'Reason', 'Status'], optional: ['Product_ID', 'Return_Date', 'Status'] }
 };
 
+// Per-column input rules. They are sent to the browser through /api/schema so the forms
+// can build matching inputs, and validate() below enforces the same rules on the server.
+const FIELD_RULES = {
+    'Customers.Email':               { type: 'email' },
+    'Customers.Phone':               { type: 'tel', pattern: '^\\+?[0-9]{9,15}$', hint: 'e.g. +254712345678' },
+    'Products.Price':                { type: 'number', min: 0.01, step: 0.01 },
+    'Products.Quantity':             { type: 'number', min: 0, step: 1 },
+    'Inventory.Quantity_Available':  { type: 'number', min: 0, step: 1 },
+    'Inventory.Product_ID':          { type: 'ref', table: 'Products' },
+    'Discounts.Customer_No':         { type: 'ref', table: 'Customers' },
+    'Discounts.Discount_Percentage': { type: 'number', min: 0, max: 100, step: 0.01 },
+    'Discounts.Discount_Amount':     { type: 'number', min: 0, step: 0.01 },
+    'Discount_Tiers.Min_Orders':     { type: 'number', min: 1, step: 1 },
+    'Discount_Tiers.Percentage':     { type: 'number', min: 0, max: 100, step: 0.01 },
+    'Orders.Product_ID':             { type: 'ref', table: 'Products' },
+    'Orders.Customer_No':            { type: 'ref', table: 'Customers' },
+    'Orders.Total_Amount':           { type: 'number', min: 0.01, step: 0.01 },
+    'Orders.Package_status':         { type: 'select', options: ['Processing', 'Shipped', 'Delivered', 'Cancelled'] },
+    'Payments.Order_No':             { type: 'ref', table: 'Orders' },
+    'Payments.Amount':               { type: 'number', min: 0.01, step: 0.01 },
+    'Payments.Payment_Method':       { type: 'select', options: ['M-Pesa', 'Card', 'Cash'] },
+    'Payments.Status':               { type: 'select', options: ['Pending', 'Completed', 'Cancelled'] },
+    'Returns.Order_No':              { type: 'ref', table: 'Orders' },
+    'Returns.Product_ID':            { type: 'ref', table: 'Products' },
+    'Returns.Status':                { type: 'select', options: ['Pending', 'Approved', 'Rejected'] }
+};
+
+for (const [t, def] of Object.entries(TABLES)) {
+    def.fields = {};
+    for (const col of def.columns) def.fields[col] = FIELD_RULES[`${t}.${col}`] || {};
+}
+
+// Returns an error message for one value, or null if it is fine
+function validate(table, col, value) {
+    const rule = TABLES[table].fields[col];
+    if ((col.endsWith('_ID') || col.endsWith('_No')) && !/^[1-9]\d*$/.test(value)) {
+        return `${col} must be a whole number above 0`;
+    }
+    if (col.toLowerCase().includes('date') && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return `${col} must be a valid date`;
+    }
+    if (rule.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return 'Email address is not valid';
+    }
+    if (rule.pattern && !new RegExp(rule.pattern).test(value)) {
+        return `${col} is not in the right format`;
+    }
+    if (rule.type === 'number') {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return `${col} must be a number`;
+        if (rule.min !== undefined && n < rule.min) return `${col} must be at least ${rule.min}`;
+        if (rule.max !== undefined && n > rule.max) return `${col} must be at most ${rule.max}`;
+        if (rule.step === 1 && !Number.isInteger(n)) return `${col} must be a whole number`;
+    }
+    if (rule.type === 'select' && !rule.options.includes(value)) {
+        return `${col} must be one of: ${rule.options.join(', ')}`;
+    }
+    return null;
+}
+
+// Validate every filled-in value; returns the first error message, or null
+function validateValues(table, values) {
+    for (const [col, value] of Object.entries(values)) {
+        const problem = validate(table, col, value);
+        if (problem) return problem;
+    }
+    return null;
+}
+
 function isValidTable(name) {
     return Object.prototype.hasOwnProperty.call(TABLES, name);
 }
@@ -340,6 +409,7 @@ app.use('/api', (req, res, next) => {
 });
 
 // SCHEMA: lets the frontend build its forms from this single definition
+// (includes the per-column rules from FIELD_RULES)
 app.get('/api/schema', (req, res) => {
     res.json(TABLES);
 });
@@ -419,6 +489,9 @@ app.post('/api/:table', (req, res) => {
         }
     }
 
+    const problem = validateValues(table, values);
+    if (problem) return res.status(400).json({ success: false, message: problem });
+
     const cols = Object.keys(values);
     db.query('INSERT INTO ?? (??) VALUES (?)', [table, cols, cols.map((c) => values[c])], (err, result) => {
         if (err) return sendDbError(res, err);
@@ -440,6 +513,9 @@ app.put('/api/:table/:id', (req, res) => {
     if (cols.length === 0) {
         return res.status(400).json({ success: false, message: 'Nothing to update: fill in at least one field.' });
     }
+
+    const problem = validateValues(table, values);
+    if (problem) return res.status(400).json({ success: false, message: problem });
 
     const assignments = cols.map(() => '?? = ?').join(', ');
     const params = [table];
