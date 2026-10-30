@@ -30,8 +30,14 @@ async function loadProducts() {
     products.forEach((product) => {
         const card = document.createElement('div');
         card.className = 'table-card';
+        const img = document.createElement('img');
+        img.className = 'product-img';
+        img.alt = product.Product_Name;
+        img.src = product.Image_URL || 'images/placeholder.svg';
+        img.onerror = () => { img.onerror = null; img.src = 'images/placeholder.svg'; };
 
         const info = document.createElement('div');
+        info.className = 'info';
         const title = document.createElement('strong');
         title.textContent = product.Product_Name;
         const detail = document.createElement('div');
@@ -50,6 +56,7 @@ async function loadProducts() {
         button.disabled = product.Quantity < 1;
         actions.appendChild(button);
 
+        card.appendChild(img);
         card.appendChild(info);
         card.appendChild(actions);
         list.appendChild(card);

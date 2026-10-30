@@ -40,7 +40,7 @@ db.query('SELECT 1', (err) => {
 // optional  : may be left blank; the database fills them (defaults and triggers in sql/04_automation.sql)
 const TABLES = {
     Customers: { pk: 'Customer_No',  columns: ['Customer_No', 'Customer_Name', 'Email', 'Phone'], optional: [] },
-    Products:  { pk: 'Product_ID',   columns: ['Product_ID', 'Product_Name', 'Category', 'Price', 'Quantity'], optional: [] },
+    Products:  { pk: 'Product_ID',   columns: ['Product_ID', 'Product_Name', 'Category', 'Price', 'Quantity', 'Image_URL'], optional: ['Image_URL'] },
     Inventory: { pk: 'Inventory_No', columns: ['Inventory_No', 'Product_ID', 'Quantity_Available', 'Records'], optional: ['Records'] },
     Discounts: { pk: 'Discount_ID',  columns: ['Discount_ID', 'Customer_No', 'Discount_Percentage', 'Discount_Amount', 'Source'], optional: ['Discount_Amount', 'Source'] },
     Discount_Tiers: { pk: 'Tier_ID', columns: ['Tier_ID', 'Min_Orders', 'Percentage'], optional: [] },
@@ -317,7 +317,7 @@ app.get('/api/shop/profile', requireCustomer, (req, res) => {
 });
 
 app.get('/api/shop/products', requireCustomer, (req, res) => {
-    db.query('SELECT Product_ID, Product_Name, Category, Price, Quantity FROM Products ORDER BY Category, Product_Name', (err, rows) => {
+    db.query('SELECT Product_ID, Product_Name, Category, Price, Quantity, Image_URL FROM Products ORDER BY Category, Product_Name', (err, rows) => {
         if (err) return sendDbError(res, err);
         res.json(rows);
     });
